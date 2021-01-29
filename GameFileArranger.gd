@@ -3,11 +3,13 @@ extends GridContainer
 
 # GameFileArranger - Game file viewing window.
 # Populated upon init with files and directories according to params
+onready var file_object_scene = preload("res://Objects/FileObject.tscn")
+var dragged_item = null  # TODO: Add signal to chat to determine if file is correct
 
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass # Replace with function body.
+	initialize(2)
 
 func initialize(difficulty):
 	# DIFFICULTY LOGIC:
@@ -26,13 +28,13 @@ func initialize(difficulty):
 	var sublevels = round(difficulty / 2)
 	for sublevel in range(0, sublevels):
 		var files = difficulty * 2 + (randi() % difficulty)
-		# TODO: for new_file in range(0, files): instance_file_object(...)
-		if sublevel > round(sublevels / 2):
-			pass  # TODO: For file_object in new_files
-		test_data[sublevel] = files
-		
-	print(test_data)
-		
+		for i in range(0, files):
+			var new_file = file_object_scene.instance()
+			add_child(new_file)
+			if sublevel > round(sublevels / 2):
+				for sub_file_object in new_file.get_children():
+					sub_file_object.is_correct_file = true
+					sub_file_object.set_type("folder")
 
 func instance_file_object(type):
 	if type == "folder":
