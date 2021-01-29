@@ -26,7 +26,7 @@ func initialize(difficulty):
 	var sublevels = round(difficulty / 2)
 	for sublevel in range(0, sublevels):
 		var files = difficulty * 2 + (randi() % difficulty)
-		# TODO: for new_file in range(0, files)
+		# TODO: for new_file in range(0, files): instance_file_object(...)
 		if sublevel > round(sublevels / 2):
 			pass  # TODO: For file_object in new_files
 		test_data[sublevel] = files
