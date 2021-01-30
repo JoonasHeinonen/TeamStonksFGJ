@@ -54,6 +54,14 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="URI" type="Label" parent="WindowContainer/HBoxContainer"]
+margin_left = 780.0
+margin_top = 121.0
+margin_right = 883.0
+margin_bottom = 135.0
+rect_scale = Vector2( 4, 4 )
+text = "Project Notes > "
+
 [node name="ChatContainer" type="Control" parent="."]
 margin_left = 775.0
 margin_top = 40.0

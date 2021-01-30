@@ -12,12 +12,10 @@ var dragged_item = null  # TODO: Add signal to chat to determine if file is corr
 # Level Stats
 var sublevel = 0
 var current_folder = null
-var up_folder = null
 var prev_folders = []
-var next_folder = null
+var next_folders = []
 var prev_sublevels = []
-var next_sublevel = null
-var up_sublevel = null
+var next_sublevels = []
 
 onready var file_view = get_node("WindowContainer/GameFileArranger")
 onready var chat_view = get_node("ChatContainer")
@@ -28,6 +26,7 @@ onready var file_image = preload("res://gfx/file.png")
 onready var prev_action = get_node("WindowContainer/HBoxContainer/Prev")
 onready var next_action = get_node("WindowContainer/HBoxContainer/Next")
 onready var up_action = get_node("WindowContainer/HBoxContainer/Up")
+onready var uri = get_node("WindowContainer/HBoxContainer/URI")
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -46,7 +45,16 @@ func instance_file_object(type):
 	return new_file
 	
 func _go_up():
-	pass
+	var up_sublevel = sublevel - 1
+	var up_folder = null
+	if current_folder:
+		up_folder = current_folder.parent_file
+	if up_sublevel < 1:
+		up_sublevel = 1
+	sublevel = up_sublevel
+	current_folder = up_folder
+	_new_sublevel(sublevel, current_folder)
+	print(sublevel, current_folder)
 	
 func _go_prev():
 	if len(prev_sublevels) > 1 and len(prev_folders) > 1:
@@ -54,13 +62,25 @@ func _go_prev():
 		var prev_folder = prev_folders[len(prev_folders) - 1]
 		prev_sublevels.remove(len(prev_sublevels) - 1)
 		prev_folders.remove(len(prev_folders) - 1)
-		_new_sublevel(prev_sublevel, prev_folder)
+		sublevel = prev_sublevel
+		current_folder = prev_folder
+		_new_sublevel(sublevel, current_folder)
+		
+		# Add next file/folder to item
+		next_sublevels.append(prev_sublevel)
+		next_folders.append(prev_folder)
 	else:
 		_new_sublevel(1, null)
 	
 func _go_next():
-	pass
-	
+	if len(next_sublevels) > 1 and len(next_folders) > 1:
+		var next_sublevel = next_sublevels[len(prev_sublevels) - 1]
+		var next_folder = next_folders[len(prev_folders) - 1]
+		next_sublevels.remove(len(next_sublevels) - 1)
+		next_folders.remove(len(next_folders) - 1)
+		sublevel = next_sublevel
+		current_folder = next_folder
+		_new_sublevel(next_sublevel, next_folder)
 	
 func _process(delta):
 	if dragged_item:
@@ -79,11 +99,13 @@ func _check_dragged_item():
 		
 func _new_sublevel(new_sublevel, folder):
 	for file in file_view.get_children():
+		if folder:
+			uri.text = folder.file_name
 		if file.sublevel != new_sublevel or file.parent_file != folder:
 			file.visible = false
 		else:
 			file.visible = true
-	_debug_sublevel(new_sublevel, folder)
+	# _debug_sublevel(new_sublevel, folder)
 				
 func _file_pressed_signal(file_instance):
 	if not file_instance.is_folder:
