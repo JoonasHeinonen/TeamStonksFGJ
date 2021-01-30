@@ -72,10 +72,10 @@ func _time_over():
 func _level_start():
 	# Start timer
 	timer = true
-	time_left = 15
+	time_left = 30
 	level_misses = 0
 	if game_instance_weakref:
-		game_instance.initialize(level)
+		game_instance.initialize(level, 1)
 		game_instance.update_level_misses(level_misses)
 		game_instance.update_timer(time_left)
 	
@@ -93,7 +93,9 @@ func _level_end(game_over):
 		timer = false
 		set_game_state(STATE_AFTERMATH)
 	else:
-		_level_start()
+		# Set next intro to run
+		game_instance.set_chat_to_new_level(level)
+		timer = false
 	
 func _process(delta):
 	if timer:
@@ -119,8 +121,8 @@ func game():
 	
 	# We need the weakref to work with _process to check that the timer still exists
 	game_instance_weakref = weakref(game_scene_instance)
-	_level_start()
-	
+	game_scene_instance.set_chat_to_new_level(1)
+
 func intro():
 	# Transition to an Intro cutscene
 	var intro_scene_instance = intro_scene.instance()
