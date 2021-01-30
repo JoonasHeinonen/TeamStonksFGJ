@@ -1,7 +1,10 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://GameContainer.gd" type="Script" id=1]
 [ext_resource path="res://Objects/GameFileArranger.tscn" type="PackedScene" id=2]
+[ext_resource path="res://gfx/rightarrow.png" type="Texture" id=3]
+[ext_resource path="res://gfx/leftarrow.png" type="Texture" id=4]
+[ext_resource path="res://gfx/uparrow.png" type="Texture" id=5]
 
 [node name="GameContainer" type="Control"]
 anchor_right = 1.0
@@ -21,6 +24,35 @@ __meta__ = {
 }
 
 [node name="GameFileArranger" parent="WindowContainer" instance=ExtResource( 2 )]
+margin_top = 50.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="WindowContainer"]
+margin_right = 300.0
+margin_bottom = 256.0
+rect_scale = Vector2( 0.25, 0.25 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Prev" type="TextureButton" parent="WindowContainer/HBoxContainer"]
+margin_right = 256.0
+margin_bottom = 256.0
+texture_normal = ExtResource( 4 )
+
+[node name="Up" type="TextureButton" parent="WindowContainer/HBoxContainer"]
+margin_left = 260.0
+margin_right = 516.0
+margin_bottom = 256.0
+texture_normal = ExtResource( 5 )
+
+[node name="Next" type="TextureButton" parent="WindowContainer/HBoxContainer"]
+margin_left = 520.0
+margin_right = 776.0
+margin_bottom = 256.0
+texture_normal = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="ChatContainer" type="Control" parent="."]
 margin_left = 775.0

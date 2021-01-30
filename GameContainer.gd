@@ -13,9 +13,9 @@ var dragged_item = null  # TODO: Add signal to chat to determine if file is corr
 var sublevel = 0
 var current_folder = null
 var up_folder = null
-var prev_folder = null
+var prev_folders = []
 var next_folder = null
-var prev_sublevel = null
+var prev_sublevels = []
 var next_sublevel = null
 var up_sublevel = null
 
@@ -24,10 +24,18 @@ onready var chat_view = get_node("ChatContainer")
 onready var folder_image = preload("res://gfx/folder.png")
 onready var file_image = preload("res://gfx/file.png")
 
+# controls
+onready var prev_action = get_node("WindowContainer/HBoxContainer/Prev")
+onready var next_action = get_node("WindowContainer/HBoxContainer/Next")
+onready var up_action = get_node("WindowContainer/HBoxContainer/Up")
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	initialize(3)
 	chat_view.connect("mouse_entered", self, "_check_if_dragged_item")
+	prev_action.connect("pressed", self, "_go_prev")
+	up_action.connect("pressed", self, "_go_up")
+	next_action.connect("pressed", self, "_go_next")
 
 func instance_file_object(type):
 	var new_file = file_object_scene.instance()
@@ -36,6 +44,23 @@ func instance_file_object(type):
 	# TODO: Determine file types and stuff randomly
 
 	return new_file
+	
+func _go_up():
+	pass
+	
+func _go_prev():
+	if len(prev_sublevels) > 1 and len(prev_folders) > 1:
+		var prev_sublevel = prev_sublevels[len(prev_sublevels) - 1]
+		var prev_folder = prev_folders[len(prev_folders) - 1]
+		prev_sublevels.remove(len(prev_sublevels) - 1)
+		prev_folders.remove(len(prev_folders) - 1)
+		_new_sublevel(prev_sublevel, prev_folder)
+	else:
+		_new_sublevel(1, null)
+	
+func _go_next():
+	pass
+	
 	
 func _process(delta):
 	if dragged_item:
@@ -74,11 +99,15 @@ func _file_pressed_signal(file_instance):
 
 	else:
 		print("sublevel",file_instance.sublevel)
+		# assign previous coordinates
+		prev_folders.append(current_folder)
+		prev_sublevels.append(sublevel)
+		
 		# We are going below this sublevel!
 		sublevel = file_instance.sublevel + 1
 		current_folder = file_instance
 		_new_sublevel(sublevel, current_folder)
-
+		
 func _create_file_signals(file_instance):
 	file_instance.connect("button_down", self, "_file_pressed_signal", [file_instance])
 
@@ -96,7 +125,7 @@ func initialize(difficulty):
 	#   * Has to be a file from atleast sublevels / 2 (round up)
 	#   
 	var test_data = {}
-	difficulty = 16
+	difficulty = 4
 	var sublevels = round(difficulty / 2)
 	randomize()
 	
@@ -139,8 +168,7 @@ func initialize(difficulty):
 				var new_file = instance_file_object("file")
 				file_view.add_child(new_file)
 				new_file.sublevel = folder.sublevel + 1
-				if folder.sublevel > 1:
-					new_file.parent_file = folder
+				new_file.parent_file = folder
 				new_file.is_folder = false
 				_create_file_signals(new_file)
 
