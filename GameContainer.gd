@@ -17,6 +17,12 @@ var next_folders = []
 var prev_sublevels = []
 var next_sublevels = []
 
+# signals
+signal correct_file
+signal wrong_file
+signal level_end
+signal level_start
+
 onready var file_view = get_node("WindowContainer/GameFileArranger")
 onready var chat_view = get_node("ChatContainer")
 onready var folder_image = preload("res://gfx/folder.png")
@@ -27,6 +33,8 @@ onready var prev_action = get_node("WindowContainer/HBoxContainer/Prev")
 onready var next_action = get_node("WindowContainer/HBoxContainer/Next")
 onready var up_action = get_node("WindowContainer/HBoxContainer/Up")
 onready var uri = get_node("WindowContainer/HBoxContainer/URI")
+onready var timer = get_node("WindowContainer/HBoxContainer2/Timer")
+onready var score = get_node("WindowContainer/HBoxContainer2/Score")
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -93,14 +101,17 @@ func _input(event):
 	if Input.is_action_just_released("Click"):
 		if dragged_item:
 			if chat_view.get_rect().has_point(get_viewport().get_mouse_position()):
-				print("dragged item to chat window!")
+				if dragged_item.is_correct_file:
+					emit_signal("correct_file")
+				else:
+					emit_signal("wrong_file")
 		dragged_item = null
 		
-func _check_dragged_item(event):
-	if event is InputEventMouseButton and event.pressed == false:
-		if dragged_item:
-			print("dragged item to chat window!")
-			
+func update_timer(new_time):
+	timer.text = str(int(new_time))
+	
+func update_level_misses(new_score):
+	score.text = "Attempts: " + str(new_score)
 		
 func _new_sublevel(new_sublevel, folder):
 	for file in file_view.get_children():
@@ -197,6 +208,16 @@ func initialize(difficulty):
 				new_file.parent_file = folder
 				new_file.is_folder = false
 				_create_file_signals(new_file)
+				
+	# 4th stage: Randomly determine one file from available files to be correct one!
+	var possible_files = []	
+	for file in file_view.get_children():
+		if file.is_folder == false:
+			possible_files.append(file)
+			
+	var correct_file = possible_files[randi() % len(possible_files)]
+	correct_file.is_correct_file = true
+	correct_file.modulate = Color(1, 0.5, 0.5, 1)
 
 	_new_sublevel(1, null)
 	

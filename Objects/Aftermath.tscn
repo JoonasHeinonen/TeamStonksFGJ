@@ -1,0 +1,18 @@
+[gd_scene format=2]
+
+[node name="Aftermath" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="."]
+margin_left = 400.0
+margin_top = 300.0
+margin_right = 500.0
+margin_bottom = 14.0
+text = "You have won!"
+__meta__ = {
+"_edit_use_anchors_": false
+}
