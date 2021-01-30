@@ -27,9 +27,19 @@ signal chat_intermission_ended
 
 onready var file_view = get_node("WindowContainer/GameFileArranger")
 onready var chat_view = get_node("ChatContainer")
+onready var jukebox = get_node("Jukebox")
+onready var sounds = get_node("InterfaceSounds")
 onready var folder_image = preload("res://gfx/folder.png")
 onready var file_image = preload("res://gfx/file.png")
 onready var chat_view_window = get_node("ChatContainer/Chat")
+
+# Sounds
+onready var click_sound = preload("res://sfx/click.wav")
+onready var click_down_sound = preload("res://sfx/click_down.wav")
+onready var chat_sound = preload("res://sfx/chat.wav")
+onready var folder_sound = preload("res://sfx/folder.wav")
+onready var success_sound = preload("res://sfx/success.wav")
+onready var failure_sound = preload("res://sfx/fail.wav")
 
 # controls
 onready var prev_action = get_node("WindowContainer/HBoxContainer/Prev")
@@ -132,14 +142,25 @@ func _process(delta):
 			get_node("Dragged").queue_free()
 	
 func _input(event):
+	if Input.is_action_just_pressed("Click"):
+		sounds.stream = click_sound
+		sounds.play()
 	if Input.is_action_just_released("Click"):
 		if dragged_item:
 			if chat_view.get_rect().has_point(get_viewport().get_mouse_position()):
 				if dragged_item.is_correct_file:
+					sounds.stream = success_sound
+					sounds.play()
 					emit_signal("correct_file")
 				else:
-					emit_signal("wrong_file")
+					sounds.stream = failure_sound
+					sounds.play()
+					emit_signal("wrong_file") 
+		else:
+			sounds.stream = click_down_sound
+			sounds.play()
 		dragged_item = null
+		
 		
 func update_timer(new_time):
 	timer.text = str(int(new_time))
@@ -177,6 +198,8 @@ func _file_pressed_signal(file_instance):
 		# We are going below this sublevel!
 		sublevel = file_instance.sublevel + 1
 		current_folder = file_instance
+		sounds.stream = folder_sound
+		sounds.play()
 		_new_sublevel(sublevel, current_folder)
 		
 func _create_file_signals(file_instance):

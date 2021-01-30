@@ -69,7 +69,7 @@ func _wrong_file():
 func _time_over():
 	# Time out level ending
 	_level_end(true)
-	
+
 func _level_start():
 	if game_instance_weakref:
 		game_instance.initialize(level, 1)

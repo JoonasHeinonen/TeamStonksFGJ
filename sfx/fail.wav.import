@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/fail.wav-eff75b2b66fb0bff6f08924dc53caa8a.sample"
+
+[deps]
+
+source_file="res://sfx/fail.wav"
+dest_files=[ "res://.import/fail.wav-eff75b2b66fb0bff6f08924dc53caa8a.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop=false
+compress/mode=0
