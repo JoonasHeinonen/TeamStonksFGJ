@@ -38,7 +38,74 @@ var icon_map = {
 	"Sara": sara
 }
 
-# Define mission briefings
+# Define mission briefings and banter
+
+# Banter per person
+var banter = {
+	"Petri": [
+		"I’m telling you; this is going to buy as a promotion for sure.",
+		"We worked overtime all week for this.",
+		"Remember who did the hard work: this guy.",
+		"This is going to look so good on my CV."
+	],
+	"Minna": [
+		"I’m really proud of you all for pulling this off.",
+		"I hope I wasn’t too harsh with you all.",
+		"Good work team, good work.",
+		"Well, it took many late evenings, but we pulled it off."
+	],
+	"Kari": [
+		"So, are we getting overtime pay for this?",
+		"I need to check something real quick.",
+		"I’m going to grab some more water.",
+		"I hope this was worth all the extra effort."
+	],
+	"Matti": [
+		"Thanks for helping me with the project, it was a lot to take in so soon.",
+		"I think I might’ve left a few mistakes in my segment...",
+		"I was so sure we’d fail with this.",
+		"This is hell of  a thing to start your first week with."
+	],
+	"Hanna": [
+		"Has everyone had a proper breakfast today?",
+		"Did you all have a nice weekend?",
+		"My webcam is flashing, should it be doing that?",
+		"Isn’t your birthday coming up Matti? I’ll make you a cake."
+	],
+}
+
+# Late banter
+
+# Failure banter
+var late_banter = {
+	"Petri": [
+		"Hey, what’s taking so long?",
+		"I hope you haven’t lost my work MC."
+	],
+	"Risto": [
+		
+	],
+	"Sara": [],
+	"Erkki": [],
+	"Liisa": [],
+	"Minna": [
+		"I’m sure she has the files for us soon. Right?",
+		"Um… Does anyone else have copies of the files?"
+	],
+	"Kalle": [],
+	"Kari": [
+		"Damn, looks like the meeting is going to take longer than it was supposed to.",
+		"Hey, we don’t have all day here. Just send the files."
+	],
+	"Matti": [
+		"Did you find it all MC? I did send my stuff to you, right?",
+		"I’d help with searching the files, but she’s my senior, so..."
+	],
+	"Hanna": [
+		"Do you need any help looking?",
+		"Is everything alright MC?"
+	],
+}
 
 # Mission one
 var briefingOne = [
@@ -334,8 +401,10 @@ var current_intro_message = 0
 var current_intermission_message = 0
 var is_intro = false
 var is_ending = false
+var is_game_on = false
 var is_intermission = false
 var is_bad_ending = false
+var possible_participants = []
 var current_briefing = briefingOne
 var end_briefing = briefingOneEnd
 
@@ -343,6 +412,9 @@ var end_briefing = briefingOneEnd
 func setLevel(lvl):
 	level = lvl
 	print("Current level is: ", level)
+	
+func set_meeting_number(level):
+	get_node("ChatTextRect/LevelContainer/LevelLabel").text = "Project Meeting " + str(level)
 
 func _determine_level(level):
 	print(level)
@@ -373,18 +445,27 @@ func set_intro(level):
 	timer = 0
 	var chat_msg_container = get_node("ChatTextRect/CharacterMessageContainer/VBoxContainer")
 	is_intro = true
+	is_game_on = false
 	for child in chat_msg_container.get_children():
 		child.queue_free()
 	current_intro_message = 0
 	current_intermission_message = 0
 	current_briefing = _determine_level(level)
 	end_briefing = _determine_end_briefing(level)
+	determine_possible_participants()
+	set_meeting_number(level)
 	print("new intro set")
 	
 func start_intermission(game_over):
 	is_bad_ending = game_over
 	is_intermission = true
 	is_intro = false
+	is_game_on = false
+
+func determine_possible_participants():
+	for p in current_briefing:
+		if p["sender"] in banter:
+			possible_participants.append(p["sender"])
 
 func _process(delta):
 	
@@ -395,6 +476,7 @@ func _process(delta):
 			if current_intro_message > len(current_briefing) - 1:
 				is_intro = false
 				emit_signal("intro_ended")
+				is_game_on = true
 			else:
 				var m = current_briefing[current_intro_message]
 				var msg = m.sender + "\n" + m.message + "\n"
@@ -471,4 +553,27 @@ func _process(delta):
 	
 					timer = 0
 					current_intermission_message += 1
+	elif is_game_on:
+		# Send generic banter randomly when banter is on
+		timer += 1 * delta
+		if timer > delay:
+			var send_message = true if randi() % 2 == 1 else false
+			print(send_message)
+			if send_message:
+				var random_participant = possible_participants[randi() % len(possible_participants) - 1]
+				var m = banter[random_participant][randi() % len(banter[random_participant]) - 1]
+				var msg = random_participant + "\n" + m + "\n"
 				
+				var new_msg_container = HSplitContainer.new()
+				var new_msg_label = Label.new()
+				var new_msg_icon = TextureRect.new()
+				
+				new_msg_icon.texture = icon_map[random_participant]
+				new_msg_label.text = msg
+				new_msg_label.autowrap = true
+				new_msg_container.margin_right = 330
+				var chat_msg_container = get_node("ChatTextRect/CharacterMessageContainer/VBoxContainer")
+				new_msg_container.add_child(new_msg_icon)
+				new_msg_container.add_child(new_msg_label)
+				chat_msg_container.add_child(new_msg_container)
+			timer = 0

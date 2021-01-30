@@ -38,13 +38,13 @@ __meta__ = {
 
 [node name="LevelLabel" type="Label" parent="ChatTextRect/LevelContainer"]
 margin_top = 7.0
-margin_right = 96.0
+margin_right = 318.0
 margin_bottom = 44.0
 custom_fonts/font = ExtResource( 4 )
 custom_colors/font_color = Color( 0.882353, 0.556863, 0.556863, 1 )
 custom_colors/font_outline_modulate = Color( 0, 0, 0, 1 )
 custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
-text = "Level"
+text = "Project Meeting 1"
 
 [node name="CharacterMessageContainer" type="Control" parent="ChatTextRect"]
 margin_left = 9.0
