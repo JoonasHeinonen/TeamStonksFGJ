@@ -121,7 +121,7 @@ func _new_sublevel(new_sublevel, folder):
 			file.visible = false
 		else:
 			file.visible = true
-	# _debug_sublevel(new_sublevel, folder)
+	_debug_sublevel(new_sublevel, folder)
 				
 func _file_pressed_signal(file_instance):
 	if not file_instance.is_folder:
@@ -161,8 +161,6 @@ func initialize(difficulty):
 	#   * Never sublevel 0
 	#   * Has to be a file from atleast sublevels / 2 (round up)
 	#   
-	var test_data = {}
-	difficulty = 4
 	var sublevels = round(difficulty / 2)
 	randomize()
 	
@@ -217,6 +215,7 @@ func initialize(difficulty):
 			
 	var correct_file = possible_files[randi() % len(possible_files)]
 	correct_file.is_correct_file = true
+	print(len(possible_files))
 	correct_file.modulate = Color(1, 0.5, 0.5, 1)
 
 	_new_sublevel(1, null)
@@ -224,14 +223,19 @@ func initialize(difficulty):
 func _debug_sublevel(sublevel, parent_folder):
 	var files = []
 	var folders = []
+	var correct_files = []
 	for file in file_view.get_children():
 		if file.sublevel == sublevel and file.parent_file == parent_folder:
 			if file.is_folder:
 				folders.append(file)
 			else:
 				files.append(file)
+			if file.is_folder == false and file.is_correct_file:
+				correct_files.append(file)
 			
 	print("Num of files in this sublevel for this parent folder")
 	print(len(files))
 	print("Num of folders in this sublevel for this parent folder")
 	print(len(folders))
+	print("Num of correct files in this sublevel for this parent folder")
+	print(len(correct_files))

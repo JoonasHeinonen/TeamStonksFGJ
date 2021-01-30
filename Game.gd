@@ -27,6 +27,8 @@ var level_misses = 0
 var score = 0
 var level_won = false
 var game_instance = null
+var game_instance_weakref = null
+var level_running = true
 
 # Load scenes
 onready var game_scene = preload("res://Objects/GameContainer.tscn")
@@ -42,6 +44,9 @@ func _ready():
 func set_game_state(new_state):
 	if new_state in AVAILABLE_STATES:
 		game_state = new_state
+
+		# Set weakref of game instance to fix issues with process()-func
+		game_instance_weakref = null
 		# Empty all children for each state change
 		for child in get_children():
 			child.queue_free()
@@ -69,7 +74,8 @@ func _level_start():
 	timer = true
 	time_left = 15
 	level_misses = 0
-	if game_instance:
+	if game_instance_weakref:
+		game_instance.initialize(level)
 		game_instance.update_level_misses(level_misses)
 		game_instance.update_timer(time_left)
 	
@@ -84,6 +90,7 @@ func _level_end(game_over):
 	level += 1
 	if level > 5:
 		# You won!
+		timer = false
 		set_game_state(STATE_AFTERMATH)
 	else:
 		_level_start()
@@ -91,7 +98,7 @@ func _level_end(game_over):
 func _process(delta):
 	if timer:
 		time_left -= 1 * delta
-		if game_instance != null:
+		if game_instance_weakref != null:
 			game_instance.update_timer(time_left)
 		if time_left <= 0:
 			_time_over()
@@ -109,6 +116,9 @@ func game():
 	game_scene_instance.connect("level_start", self, "_level_start")
 	game_scene_instance.connect("level_end", self, "_level_end")
 	game_instance = game_scene_instance
+	
+	# We need the weakref to work with _process to check that the timer still exists
+	game_instance_weakref = weakref(game_scene_instance)
 	_level_start()
 	
 func intro():
