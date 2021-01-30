@@ -45,4 +45,3 @@ func set_type(new_type):
 	if new_type in ALLOWED_TYPES:
 		type = new_type
 		# TODO: Other file processing as necessary
-

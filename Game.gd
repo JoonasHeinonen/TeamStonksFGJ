@@ -1,4 +1,4 @@
-extends Node2D
+extends Control
 
 
 # Game Object: Track all game status, main for code
@@ -29,6 +29,7 @@ var level_won = false
 var game_instance = null
 var game_instance_weakref = null
 var level_running = true
+var intermission = false
 
 # Load scenes
 onready var game_scene = preload("res://Objects/GameContainer.tscn")
@@ -68,14 +69,10 @@ func _wrong_file():
 func _time_over():
 	# Time out level ending
 	_level_end(true)
-	
+
 func _level_start():
-	# Start timer
-	timer = true
-	time_left = 15
-	level_misses = 0
 	if game_instance_weakref:
-		game_instance.initialize(level)
+		game_instance.initialize(level, 1)
 		game_instance.update_level_misses(level_misses)
 		game_instance.update_timer(time_left)
 	
@@ -93,15 +90,36 @@ func _level_end(game_over):
 		timer = false
 		set_game_state(STATE_AFTERMATH)
 	else:
-		_level_start()
+		# start intermission for next level
+		# Clean and set next intro to run
+		_start_intermission(game_over)
+		
+func _intermission_ended():
+	# Intermission has ended, start next level
+	_level_start()
+	game_instance.hide_controls()
+	game_instance.set_chat_to_new_level(level)
+	timer = false
+	
+func _start_intermission(game_over):
+	game_instance.start_intermission(game_over)
 	
 func _process(delta):
-	if timer:
+	if timer and time_left > 0:
 		time_left -= 1 * delta
 		if game_instance_weakref != null:
 			game_instance.update_timer(time_left)
 		if time_left <= 0:
 			_time_over()
+
+func _start_timer():
+	# Start timer for current level
+	timer = true
+	time_left = 30
+	level_misses = 0
+	if game_instance_weakref:
+		game_instance.show_controls()
+	_level_start()
 
 # State changer commands. Fill in as necessary!
 func menu():
@@ -113,14 +131,15 @@ func game():
 	add_child(game_scene_instance)
 	game_scene_instance.connect("correct_file", self, "_correct_file")
 	game_scene_instance.connect("wrong_file", self, "_wrong_file")
-	game_scene_instance.connect("level_start", self, "_level_start")
 	game_scene_instance.connect("level_end", self, "_level_end")
+	game_scene_instance.connect("chat_intro_ended", self, "_start_timer")
+	game_scene_instance.connect("chat_intermission_ended", self, "_intermission_ended")
 	game_instance = game_scene_instance
 	
 	# We need the weakref to work with _process to check that the timer still exists
 	game_instance_weakref = weakref(game_scene_instance)
-	_level_start()
-	
+	game_scene_instance.set_chat_to_new_level(1)
+
 func intro():
 	# Transition to an Intro cutscene
 	var intro_scene_instance = intro_scene.instance()
