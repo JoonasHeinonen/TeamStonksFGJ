@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://FileObject.gd" type="Script" id=1]
 [ext_resource path="res://gfx/file.png" type="Texture" id=2]
+[ext_resource path="res://gfx/fonts/ui.tres" type="DynamicFont" id=3]
 
 [node name="FileObject" type="TextureButton"]
 anchor_right = 1.0
@@ -10,6 +11,18 @@ margin_right = -768.0
 margin_bottom = -344.0
 texture_normal = ExtResource( 2 )
 script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="."]
+margin_left = 41.0
+margin_top = 228.0
+margin_right = 208.0
+margin_bottom = 259.0
+custom_fonts/font = ExtResource( 3 )
+text = "file.txt"
+align = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }

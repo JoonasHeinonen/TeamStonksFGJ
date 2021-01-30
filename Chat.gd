@@ -1,6 +1,7 @@
 extends Control
 
 signal intro_ended
+signal intermission_ended
 
 # Define base variables
 var playerName = null
@@ -147,6 +148,158 @@ var briefingOneEnd = [
 		]
 	}		
 ]
+# Mission one ending
+var briefingFiveEnd = [
+	{
+		"goodEnding": [
+			{
+				"sender": "Erkki",
+				"message": "Hahahhah! Excellent, we will make so much money out of this!"
+			},
+			{
+				"sender": "Minna",
+				"message": "Thank you, we worked hard to get it done."
+			},
+			{
+				"sender": "Erkki",
+				"message": "You’re bright ones, I can see that. We can’t let that talent get wasted."
+			},
+			{
+				"sender": "Erkki",
+				"message": "Take this project to the finish line and I’ll have a promotion for each one of you. And a big fat raise as well, of course!"
+			},	
+		],
+		"badEnding": [
+			{
+				"sender": "Erkki",
+				"message": "What is this? Why am I still waiting?!"
+			},
+			{
+				"sender": "Kari",
+				"message": "Just a moment, just a moment…"
+			},
+			{
+				"sender": "Erkki",
+				"message": "Ah! You youngsters don’t know what it’s all about! Time is money!"
+			},
+			{
+				"sender": "Erkki",
+				"message": "Is this how you’re handling your usual work as well? Seems like we might be paying you too much, I must look into that…"
+			},	
+		]
+	}		
+]
+# Mission one ending
+var briefingTwoEnd = [
+	{
+		"goodEnding": [
+			{
+				"sender": "Kalle",
+				"message": "Hey, this is some hot stuff! I’ll definitely be sending this forward."
+			},
+			{
+				"sender": "Hanna",
+				"message": "Thank you. It was a team effort, really."
+			},
+			{
+				"sender": "Kalle",
+				"message": "This will definitely help me… I mean us, with greasing some corporate wheels."
+			},	
+		],
+		"badEnding": [
+			{
+				"sender": "Kalle",
+				"message": "Come on, come on! I don’t have all day!"
+			},
+			{
+				"sender": "Minna",
+				"message": "These are worth the wait, I promise."
+			},
+			{
+				"sender": "Kalle",
+				"message": "Time’s running out… Forget it, I have other meetings to attend to."
+			},
+			{
+				"sender": "Kalle",
+				"message": "If I’m late, you can bet it’s you who’ll take the blame."
+			},	
+		]
+	}		
+]
+# Mission one ending
+var briefingThreeEnd = [
+	{
+		"goodEnding": [
+			{
+				"sender": "Risto",
+				"message": "Man oh man, you folks are killing it! This is totally outside of the box!"
+			},
+			{
+				"sender": "Petri",
+				"message": "That’s exactly what we were going for!"
+			},
+			{
+				"sender": "Risto",
+				"message": "I’m gonna send this straight to the big shots. Really proud of you all, you’re exactly the type of people this corporation needs!"
+			},	
+		],
+		"badEnding": [
+			{
+				"sender": "Risto",
+				"message": "Mmnh… I’m not feeling the vibes right now. That’s a bummer."
+			},
+			{
+				"sender": "Hanna",
+				"message": "Should we take a little break while we wait?"
+			},
+			{
+				"sender": "Risto",
+				"message": "No, see… You gotta have more enthusiasm about this! You can’t just mess it up so easily."
+			},
+			{
+				"sender": "Risto",
+				"message": "I gotta turn this down. If you want to impress the big shots, you need better energy than this"
+			},	
+		]
+	}		
+]
+# Mission one ending
+var briefingFourEnd = [
+	{
+		"goodEnding": [
+			{
+				"sender": "Sara",
+				"message": "The numbers look good enough. Solid research, good market-penetration."
+			},
+			{
+				"sender": "Matti",
+				"message": "…Thank… you?"
+			},
+			{
+				"sender": "Sara",
+				"message": "I’ll let the CEO know about this. We can use this on next quarter’s strategy. The marketing department needs to be brought on board as well."
+			},	
+		],
+		"badEnding": [
+			{
+				"sender": "Sara",
+				"message": "No numbers, then?"
+			},
+			{
+				"sender": "Petri",
+				"message": "We have them, trust us."
+			},
+			{
+				"sender": "Sara",
+				"message": "You’ve already wasted the most important one: my time."
+			},
+			{
+				"sender": "Sara",
+				"message": "I think we’re done here. If you have no respect for me, I doubt you’d handle other resources with better care."
+			},	
+		]
+	}		
+]
 
 func _determine_portrait(person):
 	# Hardcoded portrait determination
@@ -157,8 +310,13 @@ var rng = RandomNumberGenerator.new()
 var delay = 2
 var timer = 0
 var current_intro_message = 0
+var current_intermission_message = 0
 var is_intro = false
+var is_ending = false
+var is_intermission = false
+var is_bad_ending = false
 var current_briefing = briefingOne
+var end_briefing = briefingOneEnd
 
 # Setter functions
 func setLevel(lvl):
@@ -177,6 +335,18 @@ func _determine_level(level):
 		return briefingFour
 	if level == 5:
 		return briefingFive
+		
+func _determine_end_briefing(level):
+	if level == 1:
+		return briefingOneEnd
+	if level == 2:
+		return briefingTwoEnd
+	if level == 3:
+		return briefingThreeEnd
+	if level == 4:
+		return briefingFourEnd
+	if level == 5:
+		return briefingFiveEnd
 
 func set_intro(level):
 	timer = 0
@@ -185,8 +355,15 @@ func set_intro(level):
 	for child in chat_msg_container.get_children():
 		child.queue_free()
 	current_intro_message = 0
+	current_intermission_message = 0
 	current_briefing = _determine_level(level)
+	end_briefing = _determine_end_briefing(level)
 	print("new intro set")
+	
+func start_intermission(game_over):
+	is_bad_ending = game_over
+	is_intermission = true
+	is_intro = false
 
 func _process(delta):
 	
@@ -208,3 +385,40 @@ func _process(delta):
 
 				timer = 0
 				current_intro_message += 1
+	elif is_intermission:
+		timer += 1 * delta
+		if timer > delay:
+			if is_bad_ending:
+				var intermission_length = len(end_briefing[0]["badEnding"])
+				if current_intermission_message > len(end_briefing[0]["badEnding"]) - 1:
+					is_intermission = false
+					emit_signal("intermission_ended")
+				else:
+					var m = end_briefing[0]["badEnding"][current_intermission_message]
+					var msg = m.sender + "\n" + m.message + "\n"
+					
+					var new_msg_label = Label.new()
+					new_msg_label.text = msg
+					var chat_msg_container = get_node("ChatTextRect/CharacterMessageContainer/VBoxContainer")
+					chat_msg_container.add_child(new_msg_label)
+	
+					timer = 0
+					current_intermission_message += 1
+			else:
+				var intermission_length = len(end_briefing[0]["goodEnding"])
+				if current_intermission_message > len(end_briefing[0]["goodEnding"]) - 1:
+					is_intermission = false
+					print("intermission end")
+					emit_signal("intermission_ended")
+				else:
+					var m = end_briefing[0]["goodEnding"][current_intermission_message]
+					var msg = m.sender + "\n" + m.message + "\n"
+					
+					var new_msg_label = Label.new()
+					new_msg_label.text = msg
+					var chat_msg_container = get_node("ChatTextRect/CharacterMessageContainer/VBoxContainer")
+					chat_msg_container.add_child(new_msg_label)
+	
+					timer = 0
+					current_intermission_message += 1
+				
