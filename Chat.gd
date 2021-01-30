@@ -13,6 +13,31 @@ onready var chat_font = preload("res://gfx/fonts/PaytoneOne.ttf")
 onready var LevelLabel = get_node("ChatTextRect/LevelContainer/LevelLabel")
 onready var PlayerMessage = get_node("ChatTextRect/PlayerMessageContainer/PlayerMessage")
 
+var kari = load("res://gfx/portraits/icon_kari.png")
+var matti = load("res://gfx/portraits/icon_matti.png")
+var minna = load("res://gfx/portraits/icon_minna.png")
+var petri = load("res://gfx/portraits/icon_petri.png")
+var hanna = load("res://gfx/portraits/icon_hanna.png")
+var liisa = load("res://gfx/portraits/icon_liisa.png")
+var erkki = load("res://gfx/portraits/eero.png")
+var kalle = load("res://gfx/portraits/kalle.png")
+var sara = load("res://gfx/portraits/sara.png")
+var risto = load("res://gfx/portraits/Risto.png")
+
+
+var icon_map = {
+	"Kari": kari,
+	"Matti": matti,
+	"Minna": minna,
+	"Petri": petri,
+	"Hanna": hanna,
+	"Liisa": liisa,
+	"Kalle": kalle,
+	"Erkki": erkki,
+	"Risto": risto,
+	"Sara": sara
+}
+
 # Define mission briefings
 
 # Mission one
@@ -301,10 +326,6 @@ var briefingFourEnd = [
 	}		
 ]
 
-func _determine_portrait(person):
-	# Hardcoded portrait determination
-	pass
-
 # Define other needed variables for technical reasons, e.g. random numbers
 var rng = RandomNumberGenerator.new()
 var delay = 2
@@ -378,11 +399,22 @@ func _process(delta):
 				var m = current_briefing[current_intro_message]
 				var msg = m.sender + "\n" + m.message + "\n"
 				
+				var new_msg_container = HSplitContainer.new()
 				var new_msg_label = Label.new()
+				var new_msg_icon = TextureRect.new()
+				
+				new_msg_icon.texture = icon_map[m.sender]
 				new_msg_label.text = msg
+				new_msg_label.margin_right = 330
+				new_msg_icon.margin_right = 100
+				new_msg_label.autowrap = true
+				
 				var chat_msg_container = get_node("ChatTextRect/CharacterMessageContainer/VBoxContainer")
-				chat_msg_container.add_child(new_msg_label)
-
+				chat_msg_container.add_child(new_msg_container)
+				new_msg_container.add_child(new_msg_icon)
+				new_msg_container.add_child(new_msg_label)
+				chat_msg_container.margin_right = 330
+				
 				timer = 0
 				current_intro_message += 1
 	elif is_intermission:
@@ -397,10 +429,19 @@ func _process(delta):
 					var m = end_briefing[0]["badEnding"][current_intermission_message]
 					var msg = m.sender + "\n" + m.message + "\n"
 					
+					var new_msg_container = HSplitContainer.new()
 					var new_msg_label = Label.new()
+					var new_msg_icon = TextureRect.new()
+					
+					new_msg_icon.texture = icon_map[m.sender]
 					new_msg_label.text = msg
+					new_msg_label.autowrap = true
+					new_msg_container.margin_right = 330
 					var chat_msg_container = get_node("ChatTextRect/CharacterMessageContainer/VBoxContainer")
-					chat_msg_container.add_child(new_msg_label)
+					print(new_msg_icon.texture)
+					new_msg_container.add_child(new_msg_icon)
+					new_msg_container.add_child(new_msg_label)
+					chat_msg_container.add_child(new_msg_container)
 	
 					timer = 0
 					current_intermission_message += 1
@@ -414,10 +455,19 @@ func _process(delta):
 					var m = end_briefing[0]["goodEnding"][current_intermission_message]
 					var msg = m.sender + "\n" + m.message + "\n"
 					
+					var new_msg_container = HSplitContainer.new()
 					var new_msg_label = Label.new()
+					var new_msg_icon = TextureRect.new()
+					
+					new_msg_icon.texture = icon_map[m.sender]
 					new_msg_label.text = msg
+					new_msg_label.autowrap = true
+					new_msg_container.margin_right = 330
 					var chat_msg_container = get_node("ChatTextRect/CharacterMessageContainer/VBoxContainer")
-					chat_msg_container.add_child(new_msg_label)
+					print(new_msg_icon.texture)
+					new_msg_container.add_child(new_msg_icon)
+					new_msg_container.add_child(new_msg_label)
+					chat_msg_container.add_child(new_msg_container)
 	
 					timer = 0
 					current_intermission_message += 1
