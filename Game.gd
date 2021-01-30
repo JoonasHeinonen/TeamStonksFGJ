@@ -27,13 +27,14 @@ var level_won = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	randomize()  # Initialize randomness
 	set_game_state(STATE_GAME)
 	
 func set_game_state(new_state):
 	if new_state in AVAILABLE_STATES:
 		game_state = new_state
 		call(new_state)
-		
+
 # State changer commands. Fill in as necessary!
 func menu():
 	print("menu running")
