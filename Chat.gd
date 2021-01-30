@@ -186,14 +186,15 @@ func set_intro(level):
 		child.queue_free()
 	current_intro_message = 0
 	current_briefing = _determine_level(level)
+	print("new intro set")
 
 func _process(delta):
 	
 	if is_intro:
-		var intro_length = len(briefingOne)
+		var intro_length = len(current_briefing)
 		timer += 1 * delta
 		if timer > delay:
-			if current_intro_message > len(briefingOne) - 1:
+			if current_intro_message > len(current_briefing) - 1:
 				is_intro = false
 				emit_signal("intro_ended")
 			else:

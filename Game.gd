@@ -70,10 +70,6 @@ func _time_over():
 	_level_end(true)
 	
 func _level_start():
-	# Start timer
-	timer = true
-	time_left = 30
-	level_misses = 0
 	if game_instance_weakref:
 		game_instance.initialize(level, 1)
 		game_instance.update_level_misses(level_misses)
@@ -105,6 +101,13 @@ func _process(delta):
 		if time_left <= 0:
 			_time_over()
 
+func _start_timer():
+	# Start timer for current level
+	timer = true
+	time_left = 30
+	level_misses = 0
+	_level_start()
+
 # State changer commands. Fill in as necessary!
 func menu():
 	print("menu running")
@@ -117,6 +120,7 @@ func game():
 	game_scene_instance.connect("wrong_file", self, "_wrong_file")
 	game_scene_instance.connect("level_start", self, "_level_start")
 	game_scene_instance.connect("level_end", self, "_level_end")
+	game_scene_instance.connect("chat_intro_ended", self, "_start_timer")
 	game_instance = game_scene_instance
 	
 	# We need the weakref to work with _process to check that the timer still exists

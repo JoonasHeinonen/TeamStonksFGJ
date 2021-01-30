@@ -22,6 +22,7 @@ signal correct_file
 signal wrong_file
 signal level_end
 signal level_start
+signal chat_intro_ended
 
 onready var file_view = get_node("WindowContainer/GameFileArranger")
 onready var chat_view = get_node("ChatContainer")
@@ -46,7 +47,7 @@ func _ready():
 	chat_view_window.connect("intro_ended", self, "_chat_intro_ended")
 
 func _chat_intro_ended():
-	emit_signal("level_start")
+	emit_signal("chat_intro_ended")
 
 func instance_file_object(type):
 	var new_file = file_object_scene.instance()
@@ -219,11 +220,7 @@ func initialize(difficulty, modifier):
 	
 	var correct_file = possible_files[randi() % len(possible_files)]
 	correct_file.is_correct_file = true
-	print(len(possible_files))
 	correct_file.modulate = Color(1, 0.5, 0.5, 1)
-	
-	# Update our chat with correct things
-	set_chat_to_new_level(difficulty)
 
 	_new_sublevel(1, null)
 	
