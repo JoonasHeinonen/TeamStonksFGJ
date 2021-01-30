@@ -29,25 +29,12 @@ export var is_correct_file = false
 export var hint_text = "hint text"
 export var image = ""  # Path reference for file for texture change
 var hint_image = ""
+var parent_file = null  # What folder this file is under
 var dragging = false
 var sublevel = 0  # What level file is this; hide all other files
+var child_folder = null  # Ensure that folders can only have one child (you can not access multiple parents from single child)
 onready var folder_image = preload("res://gfx/folder.png")
 onready var file_image = preload("res://gfx/file.png")
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	var children = get_children()
-	
-	# TODO: Populate cursor file pointer somewhere
-	if dragging:
-		var ghost_image = get_node("/root/Dragged")
-		if ghost_image:
-			ghost_image.position = get_viewport().get_mouse_position()
-	else:
-		var ghost_image = get_node("/root/Dragged")
-		if ghost_image:
-			ghost_image.queue_free()
 
 func set_folder():
 	texture_normal = folder_image
