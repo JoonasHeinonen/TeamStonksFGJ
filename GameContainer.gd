@@ -31,7 +31,7 @@ onready var uri = get_node("WindowContainer/HBoxContainer/URI")
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	initialize(3)
-	chat_view.connect("mouse_entered", self, "_check_if_dragged_item")
+	chat_view.connect("gui_input", self, "_check_dragged_item")
 	prev_action.connect("pressed", self, "_go_prev")
 	up_action.connect("pressed", self, "_go_up")
 	next_action.connect("pressed", self, "_go_next")
@@ -91,11 +91,16 @@ func _process(delta):
 	
 func _input(event):
 	if Input.is_action_just_released("Click"):
+		if dragged_item:
+			if chat_view.get_rect().has_point(get_viewport().get_mouse_position()):
+				print("dragged item to chat window!")
 		dragged_item = null
 		
-func _check_dragged_item():
-	if dragged_item and Input.is_action_just_released("Click"):
-		print("dragged item to chat window!")
+func _check_dragged_item(event):
+	if event is InputEventMouseButton and event.pressed == false:
+		if dragged_item:
+			print("dragged item to chat window!")
+			
 		
 func _new_sublevel(new_sublevel, folder):
 	for file in file_view.get_children():
@@ -120,7 +125,6 @@ func _file_pressed_signal(file_instance):
 		add_child(ghost_image)
 
 	else:
-		print("sublevel",file_instance.sublevel)
 		# assign previous coordinates
 		prev_folders.append(current_folder)
 		prev_sublevels.append(sublevel)
