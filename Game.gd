@@ -1,4 +1,4 @@
-extends Node2D
+extends Control
 
 
 # Game Object: Track all game status, main for code
