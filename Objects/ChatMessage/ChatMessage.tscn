@@ -1,0 +1,35 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Label
+
+var senderName = null
+var message = null
+
+func initName(name):
+	senderName = name
+
+func initMsgText(msg):
+	text = msg
+
+func _ready():
+	name = \"Girdeux\"
+	var msg = \"Moi siellä!\"
+	initMsgText(msg)
+	print(\"Created new message with the values \" + name + \" and: \" + msg)
+"
+
+[node name="ChatMessage" type="Label"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = SubResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TextureRect" type="TextureRect" parent="."]
+margin_right = 40.0
+margin_bottom = 40.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
