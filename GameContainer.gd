@@ -107,12 +107,11 @@ func _go_up():
 	var up_folder = null
 	if current_folder:
 		up_folder = current_folder.parent_file
-	if up_sublevel < 1:
-		up_sublevel = 1
+	if up_sublevel < 0:
+		up_sublevel = 0
 	sublevel = up_sublevel
 	current_folder = up_folder
 	_new_sublevel(sublevel, current_folder)
-	print(sublevel, current_folder)
 	
 func _go_prev():
 	if len(prev_sublevels) > 1 and len(prev_folders) > 1:
@@ -175,13 +174,13 @@ func update_level_misses(new_score):
 	score.text = "Attempts: " + str(new_score)
 		
 func _new_sublevel(new_sublevel, folder):
+	if folder:
+		uri.text = folder.file_name
 	for file in file_view.get_children():
-		if folder:
-			uri.text = folder.file_name
-		if file.sublevel != new_sublevel or file.parent_file != folder:
-			file.visible = false
-		else:
+		if file.sublevel == new_sublevel + 1 and file.parent_file == folder:
 			file.visible = true
+		else:
+			file.visible = false
 	#_debug_sublevel(new_sublevel, folder)
 				
 func _file_pressed_signal(file_instance):
@@ -201,9 +200,10 @@ func _file_pressed_signal(file_instance):
 		prev_folders.append(current_folder)
 		prev_sublevels.append(sublevel)
 		
-		# We are going below this sublevel!
-		sublevel = file_instance.sublevel + 1
+		sublevel = file_instance.sublevel
 		current_folder = file_instance
+		print("new sublevel", file_instance.sublevel)
+		print("new folder", file_instance.file_name)
 		sounds.stream = folder_sound
 		sounds.play()
 		_new_sublevel(sublevel, current_folder)
@@ -246,9 +246,10 @@ func initialize(difficulty, modifier):
 			
 			# Generate folder filenames
 			var new_filename = "%s" % filenames[randi() % len(filenames)]
+			new_file.file_name = new_filename
 			new_file.get_node("Label").text = new_filename
 
-	# For each folder, generate files
+	# 2nd stage: For each folder, generate parents
 	for folder in file_view.get_children():
 		if folder.is_folder == true:
 			randomize()
@@ -259,12 +260,15 @@ func initialize(difficulty, modifier):
 				for p_folder in file_view.get_children():
 					if p_folder.is_folder == true:
 						if p_folder.sublevel == folder.sublevel - 1:
-							if p_folder.child_folder == null:
-								possible_folders.append(p_folder)
+							possible_folders.append(p_folder)
 				if len(possible_folders) > 0:
 					var chosen_folder = possible_folders[randi() % len(possible_folders)]
 					folder.parent_file = chosen_folder
 					chosen_folder.child_folder = folder
+				else:
+					# Hack: Each folder has to be parented or seen somewhere so set it in root
+					folder.parent_file = null
+					folder.sublevel = 1
 	
 	# 3rd stage: Assign files for each folder according to their set parents and sublevels
 	for folder in file_view.get_children():
@@ -289,18 +293,41 @@ func initialize(difficulty, modifier):
 				_create_file_signals(new_file)
 				
 	# 4th stage: Randomly determine one file from available files to be correct one!
-	var possible_files = []	
+	var possible_files = []
 	for file in file_view.get_children():
 		if file.is_folder == false:
 			possible_files.append(file)
 	
 	var correct_file = possible_files[randi() % len(possible_files)]
 	correct_file.is_correct_file = true
-	print(correct_file.file_name)
 	correct_file.modulate = Color(1, 0.5, 0.5, 1)
-	print(correct_file.file_ending)
+	
+	#Hack: force parent files (folders only?) below sublevel 1
+	for file in file_view.get_children():
+		if file.sublevel > 1 and file.parent_file == null:
+			var px_folders = []
+			for folder in file_view.get_children():
+				if folder.is_folder:
+					px_folders.append(folder)
+			var chosen_px = px_folders[randi() % len(px_folders) - 1]
+			file.parent_file = chosen_px
+			file.sublevel = chosen_px.sublevel + 1
+	
+	print("SUBLEVEL ",correct_file.sublevel)
+	if correct_file.sublevel > 2:
+		# Hack: Force parent correct file to level 2 max
+		print("correcting file")
+		var p1_folders = []
+		for folder in file_view.get_children():
+			if folder.is_folder and folder.sublevel == 1:
+				p1_folders.append(folder)
+		var chosen_folder = p1_folders[randi() % len(p1_folders) - 1]
+		correct_file.sublevel = 2
+		correct_file.parent_file = chosen_folder
+	print("CORRECTED SUBLEVEL: ", correct_file.sublevel)
+
 	_generate_hint(correct_file)
-	_new_sublevel(1, null)
+	_new_sublevel(0, null)
 
 func _generate_hint(correct_file):
 	var hint_text_base = hint_texts[randi() % len(hint_texts) - 1]

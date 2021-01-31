@@ -130,7 +130,7 @@ func _quit():
 func menu():
 	var menu_scene_instance = menu_scene.instance()
 	add_child(menu_scene_instance)
-	menu_scene_instance.connect("start_game", self, "set_game_state", [STATE_GAME])
+	menu_scene_instance.connect("start_game", self, "set_game_state", [STATE_INTRO])
 	menu_scene_instance.connect("quit_game", self, "_quit")
 	
 func game():
@@ -152,6 +152,7 @@ func intro():
 	# Transition to an Intro cutscene
 	var intro_scene_instance = intro_scene.instance()
 	add_child(intro_scene_instance)
+	intro_scene_instance.connect("go_game", self, "set_game_state", [STATE_GAME])
 	
 func game_over():
 	# Transition to a Game Over Screen

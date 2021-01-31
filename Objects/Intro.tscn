@@ -1,18 +1,39 @@
-[gd_scene format=2]
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://gfx/fonts/ui.tres" type="DynamicFont" id=1]
+[ext_resource path="res://Objects/Intro.gd" type="Script" id=2]
 
 [node name="Intro" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+script = ExtResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Label" type="Label" parent="."]
-margin_left = 400.0
-margin_top = 300.0
-margin_right = 40.0
-margin_bottom = 14.0
-text = "This is an INtro!"
+margin_left = 64.0
+margin_top = 59.0
+margin_right = 982.0
+margin_bottom = 456.0
+custom_fonts/font = ExtResource( 1 )
+text = "You and your team have been planning a new project that could be a huge boost to the company and your careers. Most of the work is done, and now you just have to present the project to the higher-ups. Luckily you prepared all the files well in advance and made sure that they’re properly organized…
+
+...or that’s what you thought.
+"
+autowrap = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="Button" type="Button" parent="."]
+margin_left = 457.946
+margin_top = 491.095
+margin_right = 502.946
+margin_bottom = 511.095
+custom_fonts/font = ExtResource( 1 )
+text = "Start!"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+[connection signal="pressed" from="Button" to="." method="_on_Button_pressed"]
