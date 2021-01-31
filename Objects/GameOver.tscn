@@ -1,15 +1,48 @@
-[gd_scene format=2]
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://gfx/fonts/ui.tres" type="DynamicFont" id=1]
+[ext_resource path="res://Objects/GameOver.gd" type="Script" id=2]
+[ext_resource path="res://music/ambience1_intense.ogg" type="AudioStream" id=3]
 
 [node name="GameOver" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+margin_left = 394.0
+margin_top = 191.0
+margin_right = -288.0
+margin_bottom = -233.0
+script = ExtResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Label" type="Label" parent="."]
-margin_right = 200.0
-margin_bottom = 200.0
-text = "Game Over!"
+margin_left = -205.652
+margin_top = -59.8355
+margin_right = 468.348
+margin_bottom = 217.164
+custom_fonts/font = ExtResource( 1 )
+text = "Your unimpressive handling of the presentation got the project axed. Judging by the way your coworkers are treating you, they seem to resent you quite a bit. It might be time to look for another job..."
 align = 1
 valign = 1
+autowrap = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Button" type="Button" parent="."]
+margin_left = 17.4953
+margin_top = 254.264
+margin_right = 215.495
+margin_bottom = 297.264
+custom_fonts/font = ExtResource( 1 )
+text = "Main Menu"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 3 )
+volume_db = -24.0
+autoplay = true
+[connection signal="pressed" from="Button" to="." method="_on_Button_pressed"]

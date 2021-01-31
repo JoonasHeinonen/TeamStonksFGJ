@@ -149,6 +149,7 @@ func game_over():
 	# Transition to a Game Over Screen
 	timer = false
 	var game_over_scene_instance = game_over_scene.instance()
+	game_over_scene_instance.connect("go_main_menu", self, "menu")
 	add_child(game_over_scene_instance)
 	
 func after_screen():
