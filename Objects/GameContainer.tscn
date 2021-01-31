@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://GameContainer.gd" type="Script" id=1]
 [ext_resource path="res://Objects/GameFileArranger.tscn" type="PackedScene" id=2]
@@ -11,6 +11,7 @@
 [ext_resource path="res://music/ambience1.ogg" type="AudioStream" id=9]
 [ext_resource path="res://gfx/hint.png" type="Texture" id=10]
 [ext_resource path="res://gfx/fonts/LuckiestGuy.ttf" type="DynamicFontData" id=11]
+[ext_resource path="res://sfx/tick.wav" type="AudioStream" id=12]
 
 [sub_resource type="DynamicFont" id=1]
 size = 72
@@ -90,10 +91,10 @@ custom_colors/font_color = Color( 0, 0, 0, 1 )
 text = "Project Notes > "
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="WindowContainer"]
-margin_left = 4.76007
-margin_top = 379.413
-margin_right = 804.76
-margin_bottom = 416.413
+margin_left = 6.12042
+margin_top = 339.962
+margin_right = 806.12
+margin_bottom = 376.962
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -114,8 +115,8 @@ custom_colors/font_color = Color( 0, 0, 0, 1 )
 text = "Score: 0"
 
 [node name="Sprite" type="Sprite" parent="WindowContainer"]
-position = Vector2( -19.1829, 463.33 )
-scale = Vector2( 0.268477, 0.19531 )
+position = Vector2( 21.6282, 469.452 )
+scale = Vector2( 0.358419, 0.306332 )
 texture = ExtResource( 10 )
 
 [node name="Label" type="Label" parent="WindowContainer/Sprite"]
@@ -157,3 +158,19 @@ autoplay = true
 
 [node name="InterfaceSounds" type="AudioStreamPlayer" parent="."]
 volume_db = -24.0
+
+[node name="TickTock" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 12 )
+volume_db = -12.0
+
+[node name="Label" type="Label" parent="."]
+margin_left = 329.209
+margin_top = 571.355
+margin_right = 531.209
+margin_bottom = 608.355
+custom_fonts/font = ExtResource( 7 )
+custom_colors/font_color = Color( 0.992157, 0.0352941, 0.0352941, 1 )
+text = "Blunders:"
+__meta__ = {
+"_edit_use_anchors_": false
+}

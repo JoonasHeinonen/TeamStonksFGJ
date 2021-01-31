@@ -1,26 +1,44 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://gfx/fonts/ui.tres" type="DynamicFont" id=1]
 [ext_resource path="res://GameOver.gd" type="Script" id=2]
 [ext_resource path="res://music/ambience1_intense.ogg" type="AudioStream" id=3]
+[ext_resource path="res://gfx/player_failure.png" type="Texture" id=4]
 
 [node name="GameOver" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 394.0
-margin_top = 191.0
-margin_right = -288.0
-margin_bottom = -233.0
+margin_left = -1.0
+margin_top = -1.0
+margin_right = 1.0
 script = ExtResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="ColorRect" type="ColorRect" parent="."]
+margin_right = 1030.0
+margin_bottom = 603.0
+color = Color( 0, 0.333333, 0.411765, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TextureRect" type="TextureRect" parent="."]
+margin_left = -121.686
+margin_top = 179.446
+margin_right = 518.314
+margin_bottom = 819.446
+texture = ExtResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="Label" type="Label" parent="."]
-margin_left = -205.652
-margin_top = -59.8355
-margin_right = 468.348
-margin_bottom = 217.164
+margin_left = 172.246
+margin_top = 97.6218
+margin_right = 846.246
+margin_bottom = 374.621
 custom_fonts/font = ExtResource( 1 )
 text = "Your unimpressive handling of the presentation got the project axed. Judging by the way your coworkers are treating you, they seem to resent you quite a bit. It might be time to look for another job..."
 align = 1
@@ -31,10 +49,10 @@ __meta__ = {
 }
 
 [node name="Button" type="Button" parent="."]
-margin_left = 17.4953
-margin_top = 254.264
-margin_right = 215.495
-margin_bottom = 297.264
+margin_left = 424.552
+margin_top = 423.385
+margin_right = 622.552
+margin_bottom = 466.385
 custom_fonts/font = ExtResource( 1 )
 text = "Main Menu"
 __meta__ = {

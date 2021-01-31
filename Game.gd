@@ -86,12 +86,21 @@ func _level_end(game_over):
 			timer = false
 			set_game_state(STATE_GAMEOVER)
 	level += 1
+	if game_over and level == 5:
+		# Instant failure! You lost to the last boss!
+		timer = false
+		set_game_state(STATE_GAMEOVER)
 	if level > 5:
 		# You won!
 		timer = false
 		set_game_state(STATE_AFTERMATH)
 	else:
 		# start intermission for next level
+		if game_instance_weakref:
+			var last_level = false
+			if level == 5:
+				last_level = true
+			game_instance.update_blunders(failed_levels, last_level)
 		_start_intermission(game_over)
 		
 func _intermission_ended():

@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://gfx/fonts/ui.tres" type="DynamicFont" id=1]
 [ext_resource path="res://Objects/Aftermath.gd" type="Script" id=2]
+[ext_resource path="res://gfx/player_victorious.png" type="Texture" id=3]
 
 [node name="Aftermath" type="Control"]
 anchor_right = 1.0
@@ -10,6 +11,14 @@ margin_left = 2.0
 margin_top = 3.0
 margin_right = 1.0
 script = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ColorRect" type="ColorRect" parent="."]
+margin_right = 1023.0
+margin_bottom = 599.0
+color = Color( 0, 0.807843, 0.894118, 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -35,4 +44,11 @@ margin_right = 606.223
 margin_bottom = 458.221
 custom_fonts/font = ExtResource( 1 )
 text = "Main Menu"
+
+[node name="TextureRect" type="TextureRect" parent="."]
+margin_left = -99.1398
+margin_top = 261.263
+margin_right = 540.86
+margin_bottom = 901.263
+texture = ExtResource( 3 )
 [connection signal="pressed" from="Button" to="." method="_on_Button_pressed"]
