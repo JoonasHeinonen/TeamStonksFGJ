@@ -1,18 +1,38 @@
-[gd_scene format=2]
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://gfx/fonts/ui.tres" type="DynamicFont" id=1]
+[ext_resource path="res://Objects/Aftermath.gd" type="Script" id=2]
 
 [node name="Aftermath" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+margin_left = 2.0
+margin_top = 3.0
+margin_right = 1.0
+script = ExtResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Label" type="Label" parent="."]
-margin_left = 400.0
-margin_top = 300.0
-margin_right = 500.0
-margin_bottom = 14.0
-text = "You have won!"
+margin_left = 189.713
+margin_top = 122.843
+margin_right = 862.713
+margin_bottom = 359.843
+custom_fonts/font = ExtResource( 1 )
+text = "Your project made it through all the presentations! It was a tremendous success and got your entire team promoted. Now you must never reveal how close you were to screwing it all up…"
+align = 1
+valign = 1
+autowrap = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="Button" type="Button" parent="."]
+margin_left = 408.223
+margin_top = 415.221
+margin_right = 606.223
+margin_bottom = 458.221
+custom_fonts/font = ExtResource( 1 )
+text = "Main Menu"
+[connection signal="pressed" from="Button" to="." method="_on_Button_pressed"]

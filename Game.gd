@@ -32,15 +32,16 @@ var level_running = true
 var intermission = false
 
 # Load scenes
-onready var game_scene = preload("res://Objects/GameContainer.tscn")
 onready var intro_scene = preload("res://Objects/Intro.tscn")
+onready var menu_scene = preload("res://Objects/Menu/MenuControl.tscn")
 onready var game_over_scene = preload("res://Objects/GameOver.tscn")
 onready var aftermath_scene = preload("res://Objects/Aftermath.tscn")
+onready var game_scene = preload("res://Objects/GameContainer.tscn")
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	randomize()  # Initialize randomness
-	set_game_state(STATE_GAME)
+	set_game_state(STATE_MENU)
 	
 func set_game_state(new_state):
 	if new_state in AVAILABLE_STATES:
@@ -121,9 +122,15 @@ func _start_timer():
 		game_instance.show_controls()
 	_level_start()
 
+func _quit():
+	get_tree().quit()
+
 # State changer commands. Fill in as necessary!
 func menu():
-	print("menu running")
+	var menu_scene_instance = menu_scene.instance()
+	add_child(menu_scene_instance)
+	menu_scene_instance.connect("start_game", self, "set_game_state", [STATE_GAME])
+	menu_scene_instance.connect("quit_game", self, "_quit")
 	
 func game():
 	# Switch to game screen and do things!
@@ -150,8 +157,10 @@ func game_over():
 	timer = false
 	var game_over_scene_instance = game_over_scene.instance()
 	add_child(game_over_scene_instance)
+	game_over_scene_instance.connect("go_main_menu", self, "set_game_state", [STATE_MENU])
 	
 func after_screen():
 	# Transition to a Game Over Screen
 	var aftermath_scene_instance = aftermath_scene.instance()
 	add_child(aftermath_scene_instance)
+	aftermath_scene_instance.connect("go_main_menu", self, "set_game_state", [STATE_MENU])

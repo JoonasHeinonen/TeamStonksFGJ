@@ -49,6 +49,12 @@ onready var uri = get_node("WindowContainer/HBoxContainer/URI")
 onready var timer = get_node("WindowContainer/HBoxContainer2/Timer")
 onready var score = get_node("WindowContainer/HBoxContainer2/Score")
 
+var hint_texts = [
+	"I think it was...",
+	"Hmm, maybe something like...",
+	"How about, maybe it was..."
+]
+
 var filenames = []
 var endings = []
 
@@ -57,7 +63,7 @@ func _ready():
 	chat_view.connect("gui_input", self, "_check_dragged_item")
 	prev_action.connect("pressed", self, "_go_prev")
 	up_action.connect("pressed", self, "_go_up")
-	next_action.connect("pressed", self, "_go_next")
+	#next_action.connect("pressed", self, "_go_next")
 	chat_view_window.connect("intro_ended", self, "_chat_intro_ended")
 	chat_view_window.connect("intermission_ended", self, "_chat_intermission_ended")
 	
@@ -176,7 +182,7 @@ func _new_sublevel(new_sublevel, folder):
 			file.visible = false
 		else:
 			file.visible = true
-	_debug_sublevel(new_sublevel, folder)
+	#_debug_sublevel(new_sublevel, folder)
 				
 func _file_pressed_signal(file_instance):
 	if not file_instance.is_folder:
@@ -220,6 +226,10 @@ func initialize(difficulty, modifier):
 	#   
 	var sublevels = round(difficulty + modifier / 2)
 	randomize()
+	
+	# clean everything
+	for file in file_view.get_children():
+		queue_free()
 	
 	# First generate all folders for each sublevel
 	for sublevel in range(1, sublevels + 1):
@@ -265,13 +275,16 @@ func initialize(difficulty, modifier):
 				file_view.add_child(new_file)
 				new_file.sublevel = folder.sublevel + 1
 				new_file.parent_file = folder
-				new_file.is_folder = false
-				
+
+				var chosen_filename = filenames[randi() % len(filenames) - 1]
+				var chosen_ending = endings[randi() % len(endings) - 1]
 				# determine file type and name randomly
 				var new_filename = "%s.%s" % [
-					filenames[randi() % len(filenames)],
-					endings[randi() % len(endings)]
+					chosen_filename,
+					chosen_ending
 				]
+				new_file.file_name = chosen_filename
+				new_file.file_ending = chosen_ending
 				new_file.get_node("Label").text = new_filename
 				_create_file_signals(new_file)
 				
@@ -283,10 +296,21 @@ func initialize(difficulty, modifier):
 	
 	var correct_file = possible_files[randi() % len(possible_files)]
 	correct_file.is_correct_file = true
+	print(correct_file.file_name)
 	correct_file.modulate = Color(1, 0.5, 0.5, 1)
-
+	print(correct_file.file_ending)
+	_generate_hint(correct_file)
 	_new_sublevel(1, null)
-	
+
+func _generate_hint(correct_file):
+	var hint_text_base = hint_texts[randi() % len(hint_texts) - 1]
+	var hint_type = "file" if randi() % 2 == 1 else "ending"
+	if hint_type == "file":
+		hint_text_base = hint_text_base + correct_file.file_name
+	else:
+		hint_text_base = hint_text_base + correct_file.file_ending
+	get_node("WindowContainer/Sprite/Label").text = hint_text_base
+
 func set_chat_to_new_level(level):
 	chat_view_window.set_intro(level)
 	

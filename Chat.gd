@@ -12,6 +12,7 @@ var level = 0
 onready var chat_font = preload("res://gfx/fonts/PaytoneOne.ttf")
 onready var LevelLabel = get_node("ChatTextRect/LevelContainer/LevelLabel")
 onready var PlayerMessage = get_node("ChatTextRect/PlayerMessageContainer/PlayerMessage")
+onready var audio = get_node("AudioStreamPlayer")
 
 var kari = load("res://gfx/portraits/icon_kari.png")
 var matti = load("res://gfx/portraits/icon_matti.png")
@@ -496,6 +497,7 @@ func _process(delta):
 				new_msg_container.add_child(new_msg_icon)
 				new_msg_container.add_child(new_msg_label)
 				chat_msg_container.margin_right = 330
+				audio.play()
 				
 				timer = 0
 				current_intro_message += 1
@@ -524,6 +526,7 @@ func _process(delta):
 					new_msg_container.add_child(new_msg_icon)
 					new_msg_container.add_child(new_msg_label)
 					chat_msg_container.add_child(new_msg_container)
+					audio.play()
 	
 					timer = 0
 					current_intermission_message += 1
@@ -550,6 +553,7 @@ func _process(delta):
 					new_msg_container.add_child(new_msg_icon)
 					new_msg_container.add_child(new_msg_label)
 					chat_msg_container.add_child(new_msg_container)
+					audio.play()
 	
 					timer = 0
 					current_intermission_message += 1
@@ -576,4 +580,5 @@ func _process(delta):
 				new_msg_container.add_child(new_msg_icon)
 				new_msg_container.add_child(new_msg_label)
 				chat_msg_container.add_child(new_msg_container)
+				audio.play()
 			timer = 0
