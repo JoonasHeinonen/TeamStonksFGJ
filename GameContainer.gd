@@ -336,7 +336,6 @@ func initialize(difficulty, modifier):
 	
 	var correct_file = possible_files[randi() % len(possible_files)]
 	correct_file.is_correct_file = true
-	correct_file.modulate = Color(1, 0.5, 0.5, 1)
 	
 	#Hack: force parent files (folders only?) below sublevel 1
 #	for file in file_view.get_children():
