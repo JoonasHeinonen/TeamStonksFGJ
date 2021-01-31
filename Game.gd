@@ -32,15 +32,16 @@ var level_running = true
 var intermission = false
 
 # Load scenes
-onready var game_scene = preload("res://Objects/GameContainer.tscn")
 onready var intro_scene = preload("res://Objects/Intro.tscn")
+onready var menu_scene = preload("res://Objects/Menu/MenuControl.tscn")
 onready var game_over_scene = preload("res://Objects/GameOver.tscn")
 onready var aftermath_scene = preload("res://Objects/Aftermath.tscn")
+onready var game_scene = preload("res://Objects/GameContainer.tscn")
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	randomize()  # Initialize randomness
-	set_game_state(STATE_GAME)
+	set_game_state(STATE_MENU)
 	
 func set_game_state(new_state):
 	if new_state in AVAILABLE_STATES:
@@ -85,13 +86,21 @@ func _level_end(game_over):
 			timer = false
 			set_game_state(STATE_GAMEOVER)
 	level += 1
+	if game_over and level == 5:
+		# Instant failure! You lost to the last boss!
+		timer = false
+		set_game_state(STATE_GAMEOVER)
 	if level > 5:
 		# You won!
 		timer = false
 		set_game_state(STATE_AFTERMATH)
 	else:
 		# start intermission for next level
-		# Clean and set next intro to run
+		if game_instance_weakref:
+			var last_level = false
+			if level == 5:
+				last_level = true
+			game_instance.update_blunders(failed_levels, last_level)
 		_start_intermission(game_over)
 		
 func _intermission_ended():
@@ -100,6 +109,8 @@ func _intermission_ended():
 	game_instance.hide_controls()
 	game_instance.set_chat_to_new_level(level)
 	timer = false
+	print("intermission ended")
+	print(game_instance)
 	
 func _start_intermission(game_over):
 	game_instance.start_intermission(game_over)
@@ -121,9 +132,15 @@ func _start_timer():
 		game_instance.show_controls()
 	_level_start()
 
+func _quit():
+	get_tree().quit()
+
 # State changer commands. Fill in as necessary!
 func menu():
-	print("menu running")
+	var menu_scene_instance = menu_scene.instance()
+	add_child(menu_scene_instance)
+	menu_scene_instance.connect("start_game", self, "set_game_state", [STATE_INTRO])
+	menu_scene_instance.connect("quit_game", self, "_quit")
 	
 func game():
 	# Switch to game screen and do things!
@@ -144,14 +161,17 @@ func intro():
 	# Transition to an Intro cutscene
 	var intro_scene_instance = intro_scene.instance()
 	add_child(intro_scene_instance)
+	intro_scene_instance.connect("go_game", self, "set_game_state", [STATE_GAME])
 	
 func game_over():
 	# Transition to a Game Over Screen
 	timer = false
 	var game_over_scene_instance = game_over_scene.instance()
 	add_child(game_over_scene_instance)
+	game_over_scene_instance.connect("go_main_menu", self, "set_game_state", [STATE_MENU])
 	
 func after_screen():
 	# Transition to a Game Over Screen
 	var aftermath_scene_instance = aftermath_scene.instance()
 	add_child(aftermath_scene_instance)
+	aftermath_scene_instance.connect("go_main_menu", self, "set_game_state", [STATE_MENU])

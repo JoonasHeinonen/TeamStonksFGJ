@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://gfx/images/player_phone.png" type="Texture" id=1]
 [ext_resource path="res://Chat.gd" type="Script" id=2]
 [ext_resource path="res://gfx/portraits/icon_hanna.png" type="Texture" id=3]
 [ext_resource path="res://gfx/fonts/ui.tres" type="DynamicFont" id=4]
 [ext_resource path="res://gfx/fonts/Chat.tres" type="DynamicFont" id=5]
+[ext_resource path="res://sfx/chat.wav" type="AudioStream" id=6]
 
 [sub_resource type="Theme" id=1]
 default_font = ExtResource( 5 )
@@ -108,3 +109,7 @@ margin_left = 96.0
 margin_right = 340.0
 margin_bottom = 128.0
 texture = ExtResource( 3 )
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 6 )
+volume_db = -12.0

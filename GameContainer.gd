@@ -29,9 +29,11 @@ onready var file_view = get_node("WindowContainer/GameFileArranger")
 onready var chat_view = get_node("ChatContainer")
 onready var jukebox = get_node("Jukebox")
 onready var sounds = get_node("InterfaceSounds")
+onready var ticktocks = get_node("TickTock")
 onready var folder_image = preload("res://gfx/folder.png")
 onready var file_image = preload("res://gfx/file.png")
 onready var chat_view_window = get_node("ChatContainer/Chat")
+onready var level_fails_ui = get_node("Label")
 
 # Sounds
 onready var click_sound = preload("res://sfx/click.wav")
@@ -40,6 +42,11 @@ onready var chat_sound = preload("res://sfx/chat.wav")
 onready var folder_sound = preload("res://sfx/folder.wav")
 onready var success_sound = preload("res://sfx/success.wav")
 onready var failure_sound = preload("res://sfx/fail.wav")
+onready var tick_sound = preload("res://sfx/tick.wav")
+onready var tock_sound = preload("res://sfx/tock.wav")
+
+var ticktocker = 0
+var ticker_started = false
 
 # controls
 onready var prev_action = get_node("WindowContainer/HBoxContainer/Prev")
@@ -49,6 +56,12 @@ onready var uri = get_node("WindowContainer/HBoxContainer/URI")
 onready var timer = get_node("WindowContainer/HBoxContainer2/Timer")
 onready var score = get_node("WindowContainer/HBoxContainer2/Score")
 
+var hint_texts = [
+	"I think it was...",
+	"Hmm, maybe something like...",
+	"How about, maybe it was..."
+]
+
 var filenames = []
 var endings = []
 
@@ -57,7 +70,7 @@ func _ready():
 	chat_view.connect("gui_input", self, "_check_dragged_item")
 	prev_action.connect("pressed", self, "_go_prev")
 	up_action.connect("pressed", self, "_go_up")
-	next_action.connect("pressed", self, "_go_next")
+	#next_action.connect("pressed", self, "_go_next")
 	chat_view_window.connect("intro_ended", self, "_chat_intro_ended")
 	chat_view_window.connect("intermission_ended", self, "_chat_intermission_ended")
 	
@@ -76,6 +89,15 @@ func _ready():
 	endings_file.close()
 	hide_controls()
 
+func update_blunders(fail_amount, last_level):
+	var blunders_text = "Blunders: "
+	if not last_level:
+		for i in range(0, fail_amount):
+			blunders_text = blunders_text + "X"
+	else:
+		blunders_text = "Final boss! You cannot fail!"
+	level_fails_ui.text = blunders_text
+
 func hide_controls():
 	get_node("WindowContainer").visible = false
 	
@@ -84,9 +106,11 @@ func show_controls():
 
 func _chat_intro_ended():
 	emit_signal("chat_intro_ended")
+	ticker_started = true
 	
 func _chat_intermission_ended():
 	emit_signal("chat_intermission_ended")
+	ticker_started = false
 
 func instance_file_object(type):
 	var new_file = file_object_scene.instance()
@@ -100,13 +124,13 @@ func _go_up():
 	var up_sublevel = sublevel - 1
 	var up_folder = null
 	if current_folder:
-		up_folder = current_folder.parent_file
-	if up_sublevel < 1:
-		up_sublevel = 1
+		if current_folder.parent_file:
+			up_folder = current_folder.parent_file
+	if up_sublevel < 0:
+		up_sublevel = 0
 	sublevel = up_sublevel
 	current_folder = up_folder
 	_new_sublevel(sublevel, current_folder)
-	print(sublevel, current_folder)
 	
 func _go_prev():
 	if len(prev_sublevels) > 1 and len(prev_folders) > 1:
@@ -133,14 +157,30 @@ func _go_next():
 		sublevel = next_sublevel
 		current_folder = next_folder
 		_new_sublevel(next_sublevel, next_folder)
-	
+
+var tick_phase = 1
+
 func _process(delta):
 	if dragged_item:
 		get_node("Dragged").position = get_viewport().get_mouse_position()
 	else:
 		if get_node("Dragged"):
 			get_node("Dragged").queue_free()
-	
+			
+	# Timer tick tock
+	if ticker_started:
+		ticktocker += 1 * delta
+		if ticktocker > 1:
+			ticktocks.stop()
+			if tick_phase == 1:
+				ticktocks.stream = tock_sound
+				tick_phase = 2
+			else:
+				ticktocks.stream = tick_sound
+				tick_phase = 1
+			ticktocks.play()
+			ticktocker = 0
+
 func _input(event):
 	if Input.is_action_just_pressed("Click"):
 		sounds.stream = click_sound
@@ -152,6 +192,7 @@ func _input(event):
 					sounds.stream = success_sound
 					sounds.play()
 					emit_signal("correct_file")
+					ticker_started = false
 				else:
 					sounds.stream = failure_sound
 					sounds.play()
@@ -169,14 +210,15 @@ func update_level_misses(new_score):
 	score.text = "Attempts: " + str(new_score)
 		
 func _new_sublevel(new_sublevel, folder):
+	if folder:
+		uri.text = folder.file_name
 	for file in file_view.get_children():
-		if folder:
-			uri.text = folder.file_name
-		if file.sublevel != new_sublevel or file.parent_file != folder:
-			file.visible = false
-		else:
+		# TODO: Per folder and sublevel
+		if file.sublevel == new_sublevel + 1:
 			file.visible = true
-	_debug_sublevel(new_sublevel, folder)
+		else:
+			file.visible = false
+	#_debug_sublevel(new_sublevel, folder)
 				
 func _file_pressed_signal(file_instance):
 	if not file_instance.is_folder:
@@ -195,9 +237,10 @@ func _file_pressed_signal(file_instance):
 		prev_folders.append(current_folder)
 		prev_sublevels.append(sublevel)
 		
-		# We are going below this sublevel!
-		sublevel = file_instance.sublevel + 1
+		sublevel = file_instance.sublevel
 		current_folder = file_instance
+		print("new sublevel", file_instance.sublevel)
+		print("new folder", file_instance.file_name)
 		sounds.stream = folder_sound
 		sounds.play()
 		_new_sublevel(sublevel, current_folder)
@@ -221,62 +264,72 @@ func initialize(difficulty, modifier):
 	var sublevels = round(difficulty + modifier / 2)
 	randomize()
 	
+	# clean everything
+	for file in file_view.get_children():
+		file.queue_free()
+	
 	# First generate all folders for each sublevel
 	for sublevel in range(1, sublevels + 1):
 		var folders = sublevels
 		if folders < 1:
 			folders = 1
-		for i in range(0, folders):
-			var new_file = instance_file_object("folder")
-			# Just Godot things; have to change texture here
-			file_view.add_child(new_file)
-			new_file.texture_normal = folder_image
-			_create_file_signals(new_file)
-			new_file.sublevel = sublevel
 			
-			# Generate folder filenames
-			var new_filename = "%s" % filenames[randi() % len(filenames)]
-			new_file.get_node("Label").text = new_filename
+		# TODO: Create multiple folders
+		#for i in range(0, folders):
+		var new_file = instance_file_object("folder")
+		# Just Godot things; have to change texture here
+		file_view.add_child(new_file)
+		
+		new_file.texture_normal = folder_image
+		_create_file_signals(new_file)
+		new_file.sublevel = sublevel
+		
+		# Generate folder filenames
+		var new_filename = "%s" % filenames[randi() % len(filenames)]
+		new_file.file_name = new_filename
+		new_file.get_node("Label").text = new_filename
 
-	# For each folder, generate files
-	for folder in file_view.get_children():
-		if folder.is_folder == true:
-			randomize()
+#	# 2nd stage: For each folder, generate parents
+#	for folder in file_view.get_children():
+#		if folder.is_folder == true:
+#			randomize()
+#
+#			# Randomly link the folder to a parent folder if sublevel > 1
+#			if folder.sublevel > 1:
+#				var possible_folders = []
+#				for p_folder in file_view.get_children():
+#					if p_folder.is_folder == true:
+#						if p_folder.sublevel == folder.sublevel - 1:
+#							possible_folders.append(p_folder)
+#				if len(possible_folders) > 0:
+#					var chosen_folder = possible_folders[randi() % len(possible_folders)]
+#					folder.parent_file = chosen_folder
+#					chosen_folder.child_folder = folder
 	
-			# Randomly link the folder to a parent folder if sublevel > 1
-			if folder.sublevel > 1:
-				var possible_folders = []
-				for p_folder in file_view.get_children():
-					if p_folder.is_folder == true:
-						if p_folder.sublevel == folder.sublevel - 1:
-							if p_folder.child_folder == null:
-								possible_folders.append(p_folder)
-				if len(possible_folders) > 0:
-					var chosen_folder = possible_folders[randi() % len(possible_folders)]
-					folder.parent_file = chosen_folder
-					chosen_folder.child_folder = folder
-	
-	# 3rd stage: Assign files for each folder according to their set parents and sublevels
-	for folder in file_view.get_children():
-		if folder.is_folder == true:
-			var files = difficulty * modifier + (randi() % difficulty)
-			for i in range(1, files + 1):
-				var new_file = instance_file_object("file")
-				file_view.add_child(new_file)
-				new_file.sublevel = folder.sublevel + 1
-				new_file.parent_file = folder
-				new_file.is_folder = false
-				
-				# determine file type and name randomly
-				var new_filename = "%s.%s" % [
-					filenames[randi() % len(filenames)],
-					endings[randi() % len(endings)]
-				]
-				new_file.get_node("Label").text = new_filename
-				_create_file_signals(new_file)
-				
+	# 3rd stage: Assign files for each sublevel according to their set parents and sublevels
+	# TODO: Per folder instead of sublevel
+	for i in range(0, sublevels + 1):
+		var files = difficulty * modifier + (randi() % difficulty)
+		for i in range(1, files + 1):
+			var new_file = instance_file_object("file")
+			file_view.add_child(new_file)
+			new_file.sublevel = i + 1  # One below current!
+			#new_file.parent_file = folder
+
+			var chosen_filename = filenames[randi() % len(filenames) - 1]
+			var chosen_ending = endings[randi() % len(endings) - 1]
+			# determine file type and name randomly
+			var new_filename = "%s.%s" % [
+				chosen_filename,
+				chosen_ending
+			]
+			new_file.file_name = chosen_filename
+			new_file.file_ending = chosen_ending
+			new_file.get_node("Label").text = new_filename
+			_create_file_signals(new_file)
+			
 	# 4th stage: Randomly determine one file from available files to be correct one!
-	var possible_files = []	
+	var possible_files = []
 	for file in file_view.get_children():
 		if file.is_folder == false:
 			possible_files.append(file)
@@ -284,9 +337,43 @@ func initialize(difficulty, modifier):
 	var correct_file = possible_files[randi() % len(possible_files)]
 	correct_file.is_correct_file = true
 	correct_file.modulate = Color(1, 0.5, 0.5, 1)
-
-	_new_sublevel(1, null)
 	
+	#Hack: force parent files (folders only?) below sublevel 1
+#	for file in file_view.get_children():
+#		if file.sublevel > 1 and file.parent_file == null:
+#			var px_folders = []
+#			for folder in file_view.get_children():
+#				if folder.is_folder:
+#					px_folders.append(folder)
+#			var chosen_px = px_folders[randi() % len(px_folders) - 1]
+#			file.parent_file = chosen_px
+#			file.sublevel = chosen_px.sublevel + 1
+	
+	print("SUBLEVEL ",correct_file.sublevel)
+#	if correct_file.sublevel > 2:
+#		# Hack: Force parent correct file to level 2 max
+#		print("correcting file")
+#		var p1_folders = []
+#		for folder in file_view.get_children():
+#			if folder.is_folder and folder.sublevel == 1:
+#				p1_folders.append(folder)
+#		var chosen_folder = p1_folders[randi() % len(p1_folders) - 1]
+#		correct_file.sublevel = 2
+#		correct_file.parent_file = chosen_folder
+	print("CORRECTED SUBLEVEL: ", correct_file.sublevel)
+
+	_generate_hint(correct_file)
+	_new_sublevel(0, null)
+
+func _generate_hint(correct_file):
+	var hint_text_base = hint_texts[randi() % len(hint_texts) - 1]
+	var hint_type = "file" if randi() % 2 == 1 else "ending"
+	if hint_type == "file":
+		hint_text_base = hint_text_base + correct_file.file_name
+	else:
+		hint_text_base = hint_text_base + correct_file.file_ending
+	get_node("WindowContainer/Sprite/Label").text = hint_text_base
+
 func set_chat_to_new_level(level):
 	chat_view_window.set_intro(level)
 	

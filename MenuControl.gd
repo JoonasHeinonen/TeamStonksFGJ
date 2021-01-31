@@ -4,6 +4,9 @@ extends Control
 # Includes NewGame and ExitGame buttons with
 # their respective functionalities.
 
+signal start_game
+signal quit_game
+
 # Menu UIs
 onready var NewGame = get_node("Menu/HBoxContainer/MenuContainer/NewGame")
 onready var ExitGame = get_node("Menu/HBoxContainer/MenuContainer/ExitGame")
@@ -19,8 +22,7 @@ func _ready():
 	ExitGame.connect("pressed", self, "quitGame")
 
 func startGame():
-	print("Started a new game!")
-	get_tree().change_scene(Intro)
+	emit_signal("start_game")
 
 func quitGame():
-	get_tree().quit()
+	emit_signal("quit_game")
