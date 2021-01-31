@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://GameContainer.gd" type="Script" id=1]
 [ext_resource path="res://Objects/GameFileArranger.tscn" type="PackedScene" id=2]
@@ -9,6 +9,15 @@
 [ext_resource path="res://gfx/fonts/ui.tres" type="DynamicFont" id=7]
 [ext_resource path="res://gfx/background_laptop_table.png" type="Texture" id=8]
 [ext_resource path="res://music/ambience1.ogg" type="AudioStream" id=9]
+[ext_resource path="res://gfx/hint.png" type="Texture" id=10]
+[ext_resource path="res://gfx/fonts/LuckiestGuy.ttf" type="DynamicFontData" id=11]
+
+[sub_resource type="DynamicFont" id=1]
+size = 72
+outline_color = Color( 0, 0, 0, 1 )
+use_mipmaps = true
+use_filter = true
+font_data = ExtResource( 11 )
 
 [node name="GameContainer" type="Control"]
 anchor_right = 1.0
@@ -103,6 +112,23 @@ margin_bottom = 37.0
 custom_fonts/font = ExtResource( 7 )
 custom_colors/font_color = Color( 0, 0, 0, 1 )
 text = "Score: 0"
+
+[node name="Sprite" type="Sprite" parent="WindowContainer"]
+position = Vector2( -19.1829, 463.33 )
+scale = Vector2( 0.268477, 0.19531 )
+texture = ExtResource( 10 )
+
+[node name="Label" type="Label" parent="WindowContainer/Sprite"]
+margin_left = -229.277
+margin_top = -3.86401
+margin_right = 241.723
+margin_bottom = 69.136
+custom_fonts/font = SubResource( 1 )
+custom_colors/font_color = Color( 0, 0, 0, 1 )
+text = "What was it?"
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="ChatContainer" type="Control" parent="."]
 margin_left = 667.0

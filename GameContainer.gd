@@ -32,6 +32,7 @@ onready var sounds = get_node("InterfaceSounds")
 onready var folder_image = preload("res://gfx/folder.png")
 onready var file_image = preload("res://gfx/file.png")
 onready var chat_view_window = get_node("ChatContainer/Chat")
+onready var hint_text = get_node("WindowContainer/Sprite/Label")
 
 # Sounds
 onready var click_sound = preload("res://sfx/click.wav")
@@ -49,6 +50,20 @@ onready var uri = get_node("WindowContainer/HBoxContainer/URI")
 onready var timer = get_node("WindowContainer/HBoxContainer2/Timer")
 onready var score = get_node("WindowContainer/HBoxContainer2/Score")
 
+var hint_texts = [
+	"I think it was...",
+	"It had in the name...",
+	"Pretty sure it was something like..."
+]
+var chosen_hint_text = "It was..."
+
+var right_file_texts = [
+	"Yeah! That is it!",
+	"Yes!",
+	"A-ha!"
+]
+var chosen_right_file_text = "Yes!"
+
 var filenames = []
 var endings = []
 
@@ -57,7 +72,7 @@ func _ready():
 	chat_view.connect("gui_input", self, "_check_dragged_item")
 	prev_action.connect("pressed", self, "_go_prev")
 	up_action.connect("pressed", self, "_go_up")
-	next_action.connect("pressed", self, "_go_next")
+	# next_action.connect("pressed", self, "_go_next")
 	chat_view_window.connect("intro_ended", self, "_chat_intro_ended")
 	chat_view_window.connect("intermission_ended", self, "_chat_intermission_ended")
 	
@@ -221,6 +236,10 @@ func initialize(difficulty, modifier):
 	var sublevels = round(difficulty + modifier / 2)
 	randomize()
 	
+	# First clean all files
+	for file in file_view.get_children():
+		file.queue_free()
+	
 	# First generate all folders for each sublevel
 	for sublevel in range(1, sublevels + 1):
 		var folders = sublevels
@@ -238,23 +257,31 @@ func initialize(difficulty, modifier):
 			var new_filename = "%s" % filenames[randi() % len(filenames)]
 			new_file.get_node("Label").text = new_filename
 
-	# For each folder, generate files
+	# 2nd stage: For each folder, generate parents
 	for folder in file_view.get_children():
 		if folder.is_folder == true:
 			randomize()
 	
 			# Randomly link the folder to a parent folder if sublevel > 1
-			if folder.sublevel > 1:
+			if folder.sublevel > 1 and folder.parent_file == null:
 				var possible_folders = []
 				for p_folder in file_view.get_children():
 					if p_folder.is_folder == true:
 						if p_folder.sublevel == folder.sublevel - 1:
-							if p_folder.child_folder == null:
-								possible_folders.append(p_folder)
+							#if p_folder.child_folder == null:
+							possible_folders.append(p_folder)
 				if len(possible_folders) > 0:
-					var chosen_folder = possible_folders[randi() % len(possible_folders)]
+					var chosen_folder = possible_folders[randi() % len(possible_folders) - 1]
 					folder.parent_file = chosen_folder
-					chosen_folder.child_folder = folder
+					#chosen_folder.child_folder = folder
+				else:
+					pass  # How do we end up here?
+					
+	# debug: print folders without parent
+	for folder in file_view.get_children():
+		if folder.is_folder == true and folder.sublevel > 1:
+			if folder.parent_file == null:
+				print("parentless folder", folder)
 	
 	# 3rd stage: Assign files for each folder according to their set parents and sublevels
 	for folder in file_view.get_children():
@@ -267,11 +294,16 @@ func initialize(difficulty, modifier):
 				new_file.parent_file = folder
 				new_file.is_folder = false
 				
+				var chosen_file_name = filenames[randi() % len(filenames) - 1]
+				var chosen_file_ending = endings[randi() % len(endings) - 1]
+				
 				# determine file type and name randomly
 				var new_filename = "%s.%s" % [
-					filenames[randi() % len(filenames)],
-					endings[randi() % len(endings)]
+					chosen_file_name,
+					chosen_file_ending
 				]
+				new_file.file_name = chosen_file_name
+				new_file.file_ending = chosen_file_ending
 				new_file.get_node("Label").text = new_filename
 				_create_file_signals(new_file)
 				
@@ -281,9 +313,31 @@ func initialize(difficulty, modifier):
 		if file.is_folder == false:
 			possible_files.append(file)
 	
-	var correct_file = possible_files[randi() % len(possible_files)]
+	var correct_file = possible_files[randi() % len(possible_files) - 1]
 	correct_file.is_correct_file = true
 	correct_file.modulate = Color(1, 0.5, 0.5, 1)
+	# Hack: enforce that the correct file is parent to something
+	if correct_file.parent_file == null and correct_file.sublevel > 1:
+		var p1_folders = []
+		for folder in file_view.get_children():
+			if folder.is_folder == true:
+				p1_folders.append(folder)
+		if len(p1_folders) > 0:
+			var hack_folder = p1_folders[randi() % len(p1_folders) - 1]
+			correct_file.parent_file = hack_folder
+			correct_file.sublevel = hack_folder.sublevel + 1
+		else:
+			correct_file.parent_file = null
+			correct_file.sublevel = 1
+
+	# Debug: determine parentless sublevel > 1 files
+	for folder in file_view.get_children():
+		if folder.is_folder == false and folder.sublevel > 1:
+			if folder.parent_file == null:
+				print("parentless file", folder)
+	
+	# Lastly generate hint
+	_generate_hint()
 
 	_new_sublevel(1, null)
 	
@@ -294,7 +348,20 @@ func start_intermission(game_over):
 	# This always starts the intermission determined in set_chat_to_new_level
 	chat_view_window.start_intermission(game_over)
 	hide_controls()
-	
+
+func _generate_hint():
+	# Generate hint text and hint hover
+	for file in file_view.get_children():
+		if file.is_folder == false and file.is_correct_file == true:
+			chosen_hint_text = hint_texts[randi() % len(hint_texts) - 1]
+			var hint_type = "file" if randi() % 2 == 1 else "ending"
+			if hint_type == "file":
+				chosen_hint_text += "\n" + file.file_name
+			else:
+				chosen_hint_text += "\n" + file.file_ending
+			hint_text.text = chosen_hint_text
+			break
+
 func _debug_sublevel(sublevel, parent_folder):
 	var files = []
 	var folders = []
