@@ -5,8 +5,8 @@ extends Control
 # their respective functionalities.
 
 # Menu UIs
-onready var NewGame = get_node("Menu/HBoxContainer/VBoxContainer/NewGame")
-onready var ExitGame = get_node("Menu/HBoxContainer/VBoxContainer/ExitGame")
+onready var NewGame = get_node("Menu/HBoxContainer/MenuContainer/NewGame")
+onready var ExitGame = get_node("Menu/HBoxContainer/MenuContainer/ExitGame")
 
 # Scenes where to be moved at
 onready var Intro = "res://Objects/Intro.tscn"
