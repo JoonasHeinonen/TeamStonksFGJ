@@ -476,6 +476,7 @@ func _process(delta):
 		if timer > delay:
 			if current_intro_message > len(current_briefing) - 1:
 				is_intro = false
+				print("intro end")
 				emit_signal("intro_ended")
 				is_game_on = true
 			else:
@@ -509,6 +510,7 @@ func _process(delta):
 				if current_intermission_message > len(end_briefing[0]["badEnding"]) - 1:
 					is_intermission = false
 					emit_signal("intermission_ended")
+					print("chat: intermission ended bad")
 				else:
 					var m = end_briefing[0]["badEnding"][current_intermission_message]
 					var msg = m.sender + "\n" + m.message + "\n"
@@ -534,7 +536,7 @@ func _process(delta):
 				var intermission_length = len(end_briefing[0]["goodEnding"])
 				if current_intermission_message > len(end_briefing[0]["goodEnding"]) - 1:
 					is_intermission = false
-					print("intermission end")
+					print("intermission end good")
 					emit_signal("intermission_ended")
 				else:
 					var m = end_briefing[0]["goodEnding"][current_intermission_message]

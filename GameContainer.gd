@@ -229,7 +229,7 @@ func initialize(difficulty, modifier):
 	
 	# clean everything
 	for file in file_view.get_children():
-		queue_free()
+		file.queue_free()
 	
 	# First generate all folders for each sublevel
 	for sublevel in range(1, sublevels + 1):

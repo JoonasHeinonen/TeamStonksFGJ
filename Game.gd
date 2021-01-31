@@ -92,7 +92,6 @@ func _level_end(game_over):
 		set_game_state(STATE_AFTERMATH)
 	else:
 		# start intermission for next level
-		# Clean and set next intro to run
 		_start_intermission(game_over)
 		
 func _intermission_ended():
@@ -101,6 +100,8 @@ func _intermission_ended():
 	game_instance.hide_controls()
 	game_instance.set_chat_to_new_level(level)
 	timer = false
+	print("intermission ended")
+	print(game_instance)
 	
 func _start_intermission(game_over):
 	game_instance.start_intermission(game_over)
